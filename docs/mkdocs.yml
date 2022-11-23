@@ -1,0 +1,18 @@
+site_name: Portfolio
+site_url: https://emptycuphq.github.io/portfolio/
+repo_url: https://github.com/emptycuphq/portfolio
+repo_name: emptycuphq/portfolio
+edit_uri: ''
+
+
+theme:
+  name: material
+  palette:
+  - scheme: default
+    toggle:
+      icon: material/toggle-switch
+      name: Switch to dark mode
+  - scheme: slate
+    toggle:
+      icon: material/toggle-switch-off-outline
+      name: Switch to light mode
