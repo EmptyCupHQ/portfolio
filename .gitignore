@@ -1,6 +1,7 @@
-venv
+venv/
 build
 data
 portfolio.egg-info
-.vscode
-__pycache__
+.vscode/
+__pycache__/
+db.json
