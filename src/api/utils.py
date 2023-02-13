@@ -1,31 +1,32 @@
-from flask import abort
 import json
 import os.path
 
 
-def read_db(db):
+def load_json(file_path):
     """
-    Reads from database and returns data.
-    If database is not found, creates a new one.
+    Reads from JSON file and returns data.
+    If file not found, creates a new one.
     """
-    if not os.path.exists('./'+db):
-        with open(db, 'w') as wf:
+    if not os.path.exists(file_path):
+        with open(file_path, 'w') as wf:
             json.dump({}, wf)
-    with open(db, 'r') as rf:
+
+    with open(file_path, 'r') as rf:
         data = json.load(rf)
-    if data == {}:
-        abort(500, description="Database is empty")
-    elif not data:
-        abort(500, description="Could not read from database")
+    if not data:
+        return False
+
     return data
 
 
-def write_db(db, data):
+def save_json(file_path, data):
     """
-    Writes to database.
+    Writes to a JSON file.
     """
-    try:
-        with open(db, 'w') as wf:
+    try: 
+        with open(file_path, 'w') as wf:
             json.dump(data, wf)
-    except:
-        abort(500, description="Could not write to database")
+    except Exception as e:
+        return False
+    
+    return True
