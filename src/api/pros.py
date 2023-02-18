@@ -46,7 +46,7 @@ def create_pro():
             'whatsapp': data['whatsapp'] if 'whatsapp' in data else True
         }
     except KeyError as e:
-        abort(400, description="%s is missing"%e)
+        abort(400, description="%s is missing" % e)
 
     try:
         db = load_json('./src/api/db.json')
@@ -61,10 +61,9 @@ def create_pro():
         save_json('./src/api/db.json', db)
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
         abort(500)
-    
-    return jsonify({ 'message': 'Successfully registered User with %s'%uid }), 201
-    
-    
+
+    return jsonify({ 'message': 'Successfully registered User with %s' % uid }), 201
+
 
 @pros.route('/<string:pid>', methods=['GET'])
 def get_pro(pid):
@@ -81,7 +80,7 @@ def get_pro(pid):
     if pid in db:
         return jsonify(db[pid])
 
-    return abort(404, description="No such professional %s"%pid)
+    return abort(404, description="No such professional %s" % pid)
 
 
 @pros.route('/<string:pid>', methods=['PATCH'])
@@ -101,7 +100,7 @@ def update_pro(pid):
         abort(500)
 
     if pid not in db:
-        return abort(404, description="No such professional %s"%pid)
+        return abort(404, description="No such professional %s" % pid)
     for (key, value) in data.items():
         if key in db[pid] and key not in ['uid', 'active']:
             db[pid][key] = value
@@ -114,5 +113,5 @@ def update_pro(pid):
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
         abort(500)
 
-    return jsonify({ 'message': 'Successfully updated fields %s of user with pid %s'
-                        % (data.keys(), pid) })
+    return jsonify({'message': 'Successfully updated fields %s of user with pid %s'
+                    % (data.keys(), pid)})

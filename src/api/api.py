@@ -6,11 +6,11 @@ from pros import pros
 
 api = Flask(__name__)
 
-#extensions
+# extensions
 cors = CORS()
 cors.init_app(api)
 
-#blueprints
+# blueprints
 api.register_blueprint(pros)
 
 
@@ -19,8 +19,9 @@ def get_routes():
     """
     Fetches list of allowed routes
     """
-    routes = { 'routes': [(r.rule, r.endpoint) for r in api.url_map.iter_rules() if r.endpoint != 'static'] }
-    
+    routes = {'routes': [(r.rule, r.endpoint)
+                         for r in api.url_map.iter_rules() if r.endpoint != 'static']}
+
     return jsonify(routes)
 
 
@@ -32,5 +33,5 @@ def handle_http_error(error):
     # for 500 errors, opaque error message
     if error.code == 500:
         return jsonify({ 'error': 'Something went wrong. Please try again or contact the admin' }), 500
-    
+
     return jsonify({ 'error': str(error) }), error.code

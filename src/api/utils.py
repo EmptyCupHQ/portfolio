@@ -4,7 +4,6 @@ import json
 def load_json(filep):
     """
     Reads from JSON file and returns data.
-    If file not found, creates a new one.
     """
     with open(filep, 'r') as rf:
         data = json.load(rf)
