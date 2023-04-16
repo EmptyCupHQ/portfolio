@@ -1,8 +1,13 @@
-from flask import Flask, jsonify, abort
+import sys
+import os
+from flask import Flask, jsonify
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
-from pros import pros
 
+# add config module to path
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+)
 
 api = Flask(__name__)
 
@@ -11,6 +16,7 @@ cors = CORS()
 cors.init_app(api)
 
 # blueprints
+from pros import pros
 api.register_blueprint(pros)
 
 
