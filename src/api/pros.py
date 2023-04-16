@@ -1,11 +1,15 @@
-from flask import Blueprint, jsonify, request, abort
+from flask import Blueprint, jsonify, request, abort, current_app as api
 import uuid
 import datetime
 import json
 from utils import load_json, save_json
+from gallery import gallery
+import config
 
 pros = Blueprint('pros', __name__, url_prefix='/pros')
 
+# register gallery blueprint
+pros.register_blueprint(gallery)
 
 @pros.route('/', methods=['GET'])
 def list_pros():
@@ -13,7 +17,7 @@ def list_pros():
     Fetches list of professionals
     """
     try:
-        db = load_json('./src/api/db.json')
+        db = load_json(config.DB['JSON_PATH'])
         if not db:
             abort(404, description='No professionals found')
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
@@ -43,26 +47,25 @@ def create_pro():
             'bio': data['bio'],
             'email': data['email'],
             'contact': data['contact'],
-            'whatsapp': data['whatsapp'] if 'whatsapp' in data else True
+            'whatsapp': data['whatsapp'] if 'whatsapp' in data else True,
+            'gallery': []
         }
     except KeyError as e:
         abort(400, description="%s is missing" % e)
 
     try:
-        db = load_json('./src/api/db.json')
-        if not db:
-            abort(404, description='No professionals found')
+        db = load_json(config.DB['JSON_PATH'])
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
         abort(500)
 
     db[uid] = pros
 
     try:
-        save_json('./src/api/db.json', db)
+        save_json(config.DB['JSON_PATH'], db)
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
         abort(500)
 
-    return jsonify({ 'message': 'Successfully registered User with %s' % uid }), 201
+    return jsonify({ 'message': 'Successfully registered User with pid %s' % uid }), 201
 
 
 @pros.route('/<string:pid>', methods=['GET'])
@@ -71,7 +74,7 @@ def get_pro(pid):
     Gets a profile data for professional by id `pid`
     """
     try:
-        db = load_json('./src/api/db.json')
+        db = load_json(config.DB['JSON_PATH'])
         if not db:
             abort(404, description='No professionals found')
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
@@ -93,7 +96,7 @@ def update_pro(pid):
         abort(400, description='Empty request data')
 
     try:
-        db = load_json('./src/api/db.json')
+        db = load_json(config.DB['JSON_PATH'])
         if not db:
             abort(404, description='No professionals found')
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
@@ -102,14 +105,14 @@ def update_pro(pid):
     if pid not in db:
         return abort(404, description="No such professional %s" % pid)
     for (key, value) in data.items():
-        if key in db[pid] and key not in ['uid', 'active']:
+        if key in db[pid] and key not in ['uid', 'active', 'gallery']:
             db[pid][key] = value
         else:
             return abort(404, description="'%s' is not an existing field" % key)
     db[pid]['active'] = datetime.datetime.utcnow().timestamp()
 
     try:
-        save_json('./src/api/db.json', db)
+        save_json(config.DB['JSON_PATH'], db)
     except (FileNotFoundError, PermissionError, json.JSONDecodeError) as e:
         abort(500)
 
