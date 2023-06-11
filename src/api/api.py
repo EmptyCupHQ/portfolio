@@ -1,7 +1,17 @@
-from flask import Flask, jsonify, abort
+import os
+import sys
+
+# add config module to path
+sys.path.append(
+    os.path.dirname(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+)
+
+from flask import Flask
 from flask_cors import CORS
 from werkzeug.exceptions import HTTPException
-from pros import pros
+
+import controller
+import errors
 
 
 api = Flask(__name__)
@@ -10,28 +20,17 @@ api = Flask(__name__)
 cors = CORS()
 cors.init_app(api)
 
-# blueprints
-api.register_blueprint(pros)
 
+api.add_url_rule('/', 'get_routes', controller.get_routes, methods=['GET'])
 
-@api.route('/', methods=['GET'])
-def get_routes():
-    """
-    Fetches list of allowed routes
-    """
-    routes = {'routes': [(r.rule, r.endpoint)
-                         for r in api.url_map.iter_rules() if r.endpoint != 'static']}
+api.add_url_rule('/pros/', 'list_pros', controller.list_pros, methods=['GET'])
+api.add_url_rule('/pros/', 'create_pro', controller.create_pro, methods=['POST'])
+api.add_url_rule('/pros/<string:pid>', 'get_pro', controller.get_pro, methods=['GET'])
+api.add_url_rule('/pros/<string:pid>', 'update_pro', controller.update_pro, methods=['PATCH'])
 
-    return jsonify(routes)
+api.add_url_rule('/pros/<string:pid>/gallery/', 'get_gallery', controller.get_gallery, methods=['GET'])
+api.add_url_rule('/pros/<string:pid>/gallery/', 'upload_gallery', controller.upload_gallery, methods=['POST'])
+api.add_url_rule('/pros/<string:pid>/gallery/<string:imgid>', 'del_gallery_img', controller.del_gallery_img, methods=['DELETE'])
 
-
-@api.errorhandler(HTTPException)
-def handle_http_error(error):
-    """
-    Handles all HTTP errors
-    """
-    # for 500 errors, opaque error message
-    if error.code == 500:
-        return jsonify({ 'error': 'Something went wrong. Please try again or contact the admin' }), 500
-
-    return jsonify({ 'error': str(error) }), error.code
+# error handlers
+api.register_error_handler(HTTPException, errors.handle_http_error)

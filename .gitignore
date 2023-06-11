@@ -6,3 +6,4 @@ portfolio.egg-info
 __pycache__/
 *.pyc
 db.json
+*.env
